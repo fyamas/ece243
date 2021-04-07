@@ -1,1 +1,75 @@
-cout << "test" << endl;
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+
+int main()
+{
+    bool game_over=false;
+    char color[6]={'R', 'B', 'O', 'Y', 'P', 'G'};
+    char answer[4]={};
+    char code[4]={};
+    char marker[4]={};
+    int round = 1;
+    srand(time(0));
+    for(int i = 0; i<4; i++){
+        code[i] = color[rand()%6];
+        printf("%c\t",code[i]);
+    } 
+	printf("\n");
+    while(!game_over){
+        if(round == 11){
+            game_over = true;
+            printf("Game Over!\n");
+			return 0;
+        } 
+        printf("Round %d:\n",round);
+		bool wrong_input = true;
+		enter:
+		printf("Please input colors: \n");
+		for(int i = 0; i<4; i++){			
+        	scanf(" %c", &answer[i]);
+		}
+		printf("YOUR INPUT:\n");
+		for(int i = 0; i<4; i++){
+		    if
+        	printf("%c\t", answer[i]);
+		}
+		printf("\n");
+		char check[4];
+		strcpy(check, code);
+		strcpy(marker, "");
+		for(int i = 0; i<4; i++){
+		    if(answer[i]==check[i]){
+		        marker[i]='R';
+		        check[i]='0';
+		        answer[i]='0';
+		    }
+		}
+		for(int i = 0; i<4; i++){
+        	if(check[i] != '0'){
+        	    for(int j = 0;j<4;j++){
+        	        if(answer[j]!='0'){
+        	            if(check[i]==answer[j]){
+        	                marker[i]='W';
+        	                break;
+        	            }else{
+        	                marker[i]='E';
+        	            }
+        	        }
+        	    }
+        	}
+		}
+		printf("Result:\n");
+		for(int i = 0; i<4; i++){
+        	printf("%c\t", marker[i]);
+		}
+		printf("\n");
+		if(wrong_input){
+		    goto enter;
+		}
+
+        round++;
+    }
+    return 0;
+}
