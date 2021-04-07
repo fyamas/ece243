@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-bool check_valid(char string[], char input);
+bool check_valid(char string[6], char input);
 
 int main()
 {
@@ -25,8 +25,8 @@ int main()
 			return 0;
         } 
         printf("Round %d:\n",round);
-		bool wrong_input = true;
 		enter_input:
+		printf("%s\n", color);
 		printf("Please input colors: \n");
 		for(int i = 0; i<4; i++){			
         	scanf(" %c", &answer[i]);
@@ -34,27 +34,29 @@ int main()
 		bool valid;
 		printf("YOUR INPUT:\n");
 		for(int i = 0; i<4; i++){
-		    printf("COLOR:%s",  color);
-		    valid=check_valid(color, answer[i]);
+		    /*valid=check_valid(color, answer[i]);
 		    if(!valid){
+		        strcpy(answer,"");
 		        goto enter_input;
-		    }
+		    }*/
         	printf("%c\t", answer[i]);
 		}
 		printf("\n");
+		char check[4]={};
+		strcpy(check, code);
 		strcpy(marker, "");
 		for(int i = 0; i<4; i++){
-		    if(answer[i]==code[i]){
+		    if(answer[i]==check[i]){
 		        marker[i]='R';
-		        code[i]='0';
+		        check[i]='0';
 		        answer[i]='0';
 		    }
 		}
 		for(int i = 0; i<4; i++){
-        	if(code[i] != '0'){
+        	if(check[i] != '0'){
         	    for(int j = 0;j<4;j++){
         	        if(answer[j]!='0'){
-        	            if(code[i]==answer[j]){
+        	            if(check[i]==answer[j]){
         	                marker[i]='W';
         	                break;
         	            }else{
@@ -69,6 +71,7 @@ int main()
         	printf("%c\t", marker[i]);
 		}
 		printf("\n");
+		goto enter_input;
 		if(strcmp(marker,"RRRR")==0){
 		    game_over=true;
 		    printf("YOU WIN");
@@ -78,7 +81,7 @@ int main()
     return 0;
 }
 
-bool check_valid(char string[], char input){
+bool check_valid(char string[6], char input){
     char *check_input;
     check_input=strchr(string,input);
 	if(check_input==NULL){
