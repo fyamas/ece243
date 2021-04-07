@@ -1,17 +1,24 @@
+/******************************************************************************
+
+                            Online C Compiler.
+                Code, Compile, Run and Debug C program online.
+Write your code in this editor and press "Run" button to compile and execute it.
+
+*******************************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 bool check_valid(char string[6], char input);
+char color[6]={"RBOYPG"};
+bool game_over=false;
+char answer[4]={};
+char code[4]={};
+char marker[4]={};
+int game_round = 1;
 
 int main()
 {
-    bool game_over=false;
-    char color[6]={"RBOYPG"};
-    char answer[4]={};
-    char code[4]={};
-    char marker[4]={};
-    int round = 1;
     srand(time(0));
     for(int i = 0; i<4; i++){
         code[i] = color[rand()%6];
@@ -19,26 +26,26 @@ int main()
     } 
 	printf("\n");
     while(!game_over){
-        if(round == 11){
+        if(game_round == 3){
             game_over = true;
             printf("Game Over!\n");
 			return 0;
         } 
-        printf("Round %d:\n",round);
-		enter_input:
-		printf("%s\n", color);
+        printf("Round %d:\n",game_round);
+		printf("AVAILABLE COLORS: %s\n", color);
 		printf("Please input colors: \n");
 		for(int i = 0; i<4; i++){			
         	scanf(" %c", &answer[i]);
 		}
 		bool valid;
+		enter_input:
 		printf("YOUR INPUT:\n");
 		for(int i = 0; i<4; i++){
-		    /*valid=check_valid(color, answer[i]);
+		    valid=check_valid(color, answer[i]);
 		    if(!valid){
 		        strcpy(answer,"");
 		        goto enter_input;
-		    }*/
+		    }
         	printf("%c\t", answer[i]);
 		}
 		printf("\n");
@@ -71,12 +78,13 @@ int main()
         	printf("%c\t", marker[i]);
 		}
 		printf("\n");
-		goto enter_input;
-		if(strcmp(marker,"RRRR")==0){
+		char correct[4];
+		strcpy(correct, "RRRR");
+		if(strcmp(marker,correct)==0){
 		    game_over=true;
 		    printf("YOU WIN");
 		}
-        round++;
+        game_round++;
     }
     return 0;
 }
