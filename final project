@@ -1,19 +1,13 @@
-/******************************************************************************
-
-                            Online C Compiler.
-                Code, Compile, Run and Debug C program online.
-Write your code in this editor and press "Run" button to compile and execute it.
-
-*******************************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+bool check_valid(char string[], char input);
 
 int main()
 {
     bool game_over=false;
-    char color[6]={'R', 'B', 'O', 'Y', 'P', 'G'};
+    char color[6]={"RBOYPG"};
     char answer[4]={};
     char code[4]={};
     char marker[4]={};
@@ -32,31 +26,35 @@ int main()
         } 
         printf("Round %d:\n",round);
 		bool wrong_input = true;
-		enter:
+		enter_input:
 		printf("Please input colors: \n");
 		for(int i = 0; i<4; i++){			
         	scanf(" %c", &answer[i]);
 		}
+		bool valid;
 		printf("YOUR INPUT:\n");
 		for(int i = 0; i<4; i++){
+		    printf("COLOR:%s",  color);
+		    valid=check_valid(color, answer[i]);
+		    if(!valid){
+		        goto enter_input;
+		    }
         	printf("%c\t", answer[i]);
 		}
 		printf("\n");
-		char check[4];
-		strcpy(check, code);
 		strcpy(marker, "");
 		for(int i = 0; i<4; i++){
-		    if(answer[i]==check[i]){
+		    if(answer[i]==code[i]){
 		        marker[i]='R';
-		        check[i]='0';
+		        code[i]='0';
 		        answer[i]='0';
 		    }
 		}
 		for(int i = 0; i<4; i++){
-        	if(check[i] != '0'){
+        	if(code[i] != '0'){
         	    for(int j = 0;j<4;j++){
         	        if(answer[j]!='0'){
-        	            if(check[i]==answer[j]){
+        	            if(code[i]==answer[j]){
         	                marker[i]='W';
         	                break;
         	            }else{
@@ -71,11 +69,23 @@ int main()
         	printf("%c\t", marker[i]);
 		}
 		printf("\n");
-		if(wrong_input){
-		    goto enter;
+		if(strcmp(marker,"RRRR")==0){
+		    game_over=true;
+		    printf("YOU WIN");
 		}
-
         round++;
     }
     return 0;
+}
+
+bool check_valid(char string[], char input){
+    char *check_input;
+    check_input=strchr(string,input);
+	if(check_input==NULL){
+	    printf("Invalid input: %c", input);
+	    printf("\n");
+	    return false;
+	}else{
+	    return true;
+	}
 }
