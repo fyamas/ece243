@@ -5,6 +5,7 @@
 Write your code in this editor and press "Run" button to compile and execute it.
 
 *******************************************************************************/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -12,11 +13,13 @@ Write your code in this editor and press "Run" button to compile and execute it.
 bool check_valid(char string[6], char input);
 char color[6]={"RBOYPG"};
 bool game_over=false;
+char input[50]={};
 char answer[4]={};
 char code[4]={};
 char marker[4]={};
 int game_round = 1;
 int maxRounds;
+volatile int pixel_buffer_start;
 
 /* Draw utility functions */
 //This function is used in other draw functions to plot individual pixels
@@ -45,13 +48,14 @@ void drawLostScreen();
 int main()
 {
     /* Read location of the pixel buffer from the pixel buffer controller */
-    volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
-    pixel_buffer_start = *pixel_ctrl_ptr;
+    //volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
+    //pixel_buffer_start = *pixel_ctrl_ptr;
     
     drawTutorial();
     
     drawGame(maxRounds);
     
+    //initiate random generator and generate code
     srand(time(0));
     for(int i = 0; i<4; i++){
         code[i] = color[rand()%6];
@@ -59,23 +63,28 @@ int main()
     } 
 	printf("\n");
     while(!game_over){
-        if(game_round == 3){
+        //max number of rounds passed, game over
+        if(game_round == maxRounds+1){
             game_over = true;
             printf("Game Over!\n");
             drawLostScreen();
 			return 0;
         } 
         printf("Round %d:\n",game_round);
+        enter_input:
 		printf("AVAILABLE COLORS: %s\n", color);
 		printf("Please input colors: \n");
-		for(int i = 0; i<4; i++){			
-        	scanf(" %c", &answer[i]);
+		scanf("%s", &input);
+		int input_length = strlen(input);
+		//check if input is valid
+		if(input_length != 4){
+		    printf("Please enter 4 colors.\n");
+		    goto enter_input;
 		}
-		bool valid;
-		enter_input:
 		printf("YOUR INPUT:\n");
 		for(int i = 0; i<4; i++){
-		    valid=check_valid(color, answer[i]);
+		    answer[i]=input[i];
+		    bool valid=check_valid(color, answer[i]);
 		    if(!valid){
 		        strcpy(answer,"");
 		        goto enter_input;
@@ -83,6 +92,7 @@ int main()
         	printf("%c\t", answer[i]);
 		}
 		printf("\n");
+		//check the input and give hints of the answer
 		char check[4]={};
 		strcpy(check, code);
 		strcpy(marker, "");
@@ -107,11 +117,13 @@ int main()
         	    }
         	}
 		}
+		//display the results
 		printf("Result:\n");
 		for(int i = 0; i<4; i++){
         	printf("%c\t", marker[i]);
 		}
 		printf("\n");
+		//if all hints are red, game is won
 		char correct[4];
 		strcpy(correct, "RRRR");
 		if(strcmp(marker,correct)==0){
@@ -124,6 +136,7 @@ int main()
     return 0;
 }
 
+//check if the input color is valid
 bool check_valid(char string[6], char input){
     char *check_input;
     check_input=strchr(string,input);
@@ -157,19 +170,26 @@ void clear_screen()
 void drawTutorial(){
     //Draw tutorial screen
     int difficulty;
-    printf("Enter difficulty: 0 = easy, 1 = medium, 2 = hard, 3 = extreme");
+    re_enter:
+    printf("Enter difficulty: 0 = easy, 1 = medium, 2 = hard, 3 = extreme\n");
     scanf("%d", &difficulty);
-    
-    if (difficulty == 0){
-        maxRounds = 12
-    } else if (difficulty == 1){
-        maxRounds = 9
-    } else if (difficulty == 2){
-        maxRounds = 7
-    } else {
-        maxRounds = 5
+    switch(difficulty){
+        case 0:
+            maxRounds = 12;
+            break;
+        case 1:
+            maxRounds = 10;
+            break;
+        case 2:
+            maxRounds = 8;
+            break;
+        case 3:
+            maxRounds = 5;
+            break;
+        default:
+            printf("Invalid input: %d\n", difficulty);
+            goto re_enter;
     }
-    
 }
 
 void drawWinScreen(){
@@ -191,4 +211,3 @@ void drawColumns(int round, int maxRounds){
     //Checks the marker array and draws 4 markers
     //Checks the code array and draws the 4 pins
 }
-
