@@ -13,6 +13,7 @@ Write your code in this editor and press "Run" button to compile and execute it.
 bool check_valid(char string[6], char input);
 char color[6]={"RBOYPG"};
 bool game_over=false;
+bool wait=true;
 char input[50]={};
 char answer[4]={};
 char code[4]={};
@@ -20,6 +21,12 @@ char marker[4]={};
 int game_round = 1;
 int maxRounds;
 volatile int pixel_buffer_start;
+volatile int * PS2_ptr = (int *) 0xFF200100;  // PS/2 port address
+volatile int * KEY_ptr = (int *) 0xFF20005C;  // KEY edgecapture address
+volatile int * SW_ptr = (int *) 0xFF200040;   // SW address
+int PS2_data, KEY_data, SW_data;
+int RVALI;
+int key_pressed, KEY_pressed, SW_pressed;
 
 /* Draw utility functions */
 //This function is used in other draw functions to plot individual pixels
@@ -44,6 +51,8 @@ void drawWinScreen();
 
 //Lose screen
 void drawLostScreen();
+
+char parse_input(int input);
 
 int main()
 {
@@ -74,16 +83,45 @@ int main()
         enter_input:
 		printf("AVAILABLE COLORS: %s\n", color);
 		printf("Please input colors: \n");
-		scanf("%s", &input);
-		int input_length = strlen(input);
-		//check if input is valid
-		if(input_length != 4){
-		    printf("Please enter 4 colors.\n");
-		    goto enter_input;
-		}
+		wait = true;
+		while(wait){		
+		KEY_data = *(KEY_ptr);
+		KEY_pressed = KEY_data & 0xF;
+		//player has done an input
+		if(KEY_pressed != 0){
+			switch(KEY_pressed){
+				case 1:
+					//take input
+					PS2_data = *(PS2_ptr);
+					key_pressed = PS2_data & 0xFF;
+					RVALI = (PS2_data & 0xFFFF0000)/65536;
+					//check if the input is valid
+					if(RVALI!=3){
+						printf("Invalid input\n");
+						*(KEY_ptr)=KEY_pressed;
+						continue;
+					}else{
+					    *(KEY_ptr)=KEY_pressed;
+						answer[0]=parse_input(key_pressed);						
+						for(int i=0;i<3;i++){
+							PS2_data = *(PS2_ptr);
+							key_pressed = PS2_data & 0xFF;
+							answer[i+1]=parse_input(key_pressed);
+						}
+						printf("ANSWER:%s\n", answer);
+						wait = false;
+					}
+					break;
+				case 2:
+					//print tutorial
+					printf("Draw help\n");
+					*(KEY_ptr)=KEY_pressed;
+					break;
+			}
+		 }
+	}
 		printf("YOUR INPUT:\n");
 		for(int i = 0; i<4; i++){
-		    answer[i]=input[i];
 		    bool valid=check_valid(color, answer[i]);
 		    if(!valid){
 		        strcpy(answer,"");
@@ -141,8 +179,7 @@ bool check_valid(char string[6], char input){
     char *check_input;
     check_input=strchr(string,input);
 	if(check_input==NULL){
-	    printf("Invalid input: %c", input);
-	    printf("\n");
+	    printf("Invalid color.\n");
 	    return false;
 	}else{
 	    return true;
@@ -172,8 +209,9 @@ void drawTutorial(){
     int difficulty;
     re_enter:
     printf("Enter difficulty: 0 = easy, 1 = medium, 2 = hard, 3 = extreme\n");
-    scanf("%d", &difficulty);
-    switch(difficulty){
+	SW_data = *(SW_ptr);
+	SW_pressed = SW_data & 0xF;
+    switch(SW_pressed){
         case 0:
             maxRounds = 12;
             break;
@@ -187,7 +225,7 @@ void drawTutorial(){
             maxRounds = 5;
             break;
         default:
-            printf("Invalid input: %d\n", difficulty);
+            printf("Invalid input: %d\n", SW_pressed);
             goto re_enter;
     }
 }
@@ -210,4 +248,23 @@ void drawColumns(int round, int maxRounds){
     
     //Checks the marker array and draws 4 markers
     //Checks the code array and draws the 4 pins
+}
+
+char parse_input(int input){
+    switch(input){
+        case 50:
+         return 'B';
+        case 52:
+         return 'G';
+        case 68:
+         return 'O';
+        case 77:
+         return 'P';
+        case 45:
+         return 'R';
+        case 53:
+         return 'Y';
+        default:
+         return 'Z';
+    }
 }
