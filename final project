@@ -58,7 +58,6 @@ int main()
     pixel_buffer_start = *pixel_ctrl_ptr;
     
     drawTutorial();
-    
 	clear_screen();
     drawGame(maxRounds);
     
@@ -117,6 +116,10 @@ int main()
 				
 				case 3:
 					printf("Reset game\n");
+					*(KEY_ptr)=KEY_pressed;
+					break;
+				default:
+					*(KEY_ptr)=KEY_pressed;
 					break;
 			}
 		 }
@@ -265,9 +268,13 @@ void drawTutorial(){
 		    KEY_pressed = KEY_data & 0xF; 
 			if(KEY_pressed == 2){
 				break;
+			}else{
+				*(KEY_ptr)=0xD;
 			}
 	    }
 	}
+	//reset edgecapture incase anything is mis-inputted
+	*(KEY_ptr)=0xF;
 }
 
 void drawWinScreen(){
