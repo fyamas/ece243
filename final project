@@ -1,23 +1,18 @@
-/******************************************************************************
-
-                            Online C Compiler.
-                Code, Compile, Run and Debug C program online.
-Write your code in this editor and press "Run" button to compile and execute it.
-
-*******************************************************************************/
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+
+
 bool check_valid(char string[6], char input);
 char color[6]={"RBOYPG"};
+bool fourColor = false; sixColor = false; eightColor = false;
 bool game_over=false;
 bool wait=true;
 char input[50]={};
-char answer[4]={};
+char answer[4]={'E', 'E', 'E', 'E'};
 char code[4]={};
-char marker[4]={};
+char marker[4]={'E', 'E', 'E', 'E'};
 int game_round = 1;
 int maxRounds;
 volatile int pixel_buffer_start;
@@ -62,6 +57,7 @@ int main()
     
     drawTutorial();
     
+	clear_screen();
     drawGame(maxRounds);
     
     //initiate random generator and generate code
@@ -116,6 +112,10 @@ int main()
 					//print tutorial
 					drawTutorial();
 					*(KEY_ptr)=KEY_pressed;
+					break;
+				
+				case 3:
+					//Reset game
 					break;
 			}
 		 }
@@ -212,20 +212,29 @@ void drawTutorial(){
 	SW_data = *(SW_ptr);
 	SW_pressed = SW_data & 0xF;
 	
+	//printf("Switch value: %d", SW_pressed);
 	if (game_round==1){
 		switch(SW_pressed){
 		    case 0:
-			maxRounds = 12;
+			maxRounds = 10;
+		    fourColor = true;
 			break;
+			
 		    case 1:
 			maxRounds = 10;
+			sixColor = true;
 			break;
+			
 		    case 2:
 			maxRounds = 8;
+			sixColor = true;
 			break;
+			
 		    case 3:
-			maxRounds = 5;
+			maxRounds = 8;
+			eightColor = true;
 			break;
+			
 		    default:
 			printf("Invalid input: %d\n", SW_pressed);
 			goto re_enter;
@@ -249,14 +258,156 @@ void drawLostScreen(){
 
 void drawGame(int maxRounds){
     //Based on the maxRounds, draws an appropriate amount of columns to be filled
+	
+	for (int i = 1; i<=maxRounds; i++){
+		drawColumns(i, maxRounds);
+	}
+	
 }
 
 void drawColumns(int round, int maxRounds){
-    //Max rounds used to know how the board has been drawn / positions of the columns
-    //Round is used to determine which column to draw on
-    
-    //Checks the marker array and draws 4 markers
-    //Checks the code array and draws the 4 pins
+	
+	int leftXBuffer = 10; //How far off the left side of the screen the first circle is
+	int bottomYBuffer = 10;
+	int topYBuffer = 40;
+	int circleDiameter = 26;
+	int xSeperator=(320-(leftXBuffer+circleDiameter*maxRounds))/maxRounds;
+	int ySeperator= (240-(bottomYBuffer+circleDiameter*6+topYBuffer))/5;
+	
+	for (int x = 0; x<320; x++){
+		for(int y = 0; y<240; y++){
+			
+			//Drawing the lower circle based on color (circle gets shifted to the right by the round)
+			if(x+(round-1)*xSeperator < 320){
+				switch(answer[0]){
+					case 'R':
+						//plot_pixel(x+(round-1)*xSeperator, y, Red[y][x]);
+						break;
+
+					case 'B':
+						//plot_pixel(x+(round-1)*xSeperator, y, Blue[y][x]);
+						break;
+
+					case 'O':
+						//plot_pixel(x+(round-1)*xSeperator, y, Orange[y][x]);
+						break;
+
+					case 'Y':
+						//plot_pixel(x+(round-1)*xSeperator, y, Yellow[y][x]);
+						break;
+
+					case 'P':
+						//plot_pixel(x+(round-1)*xSeperator, y, Purple[y][x]);
+						break;
+
+					case 'G':
+						//plot_pixel(x+(round-1)*xSeperator, y, Green[y][x]);
+						break;
+				}
+			}
+			
+			//Drawing the lower middle circle (circle gets shifted up once & to the right by the round)
+			if((x+(round-1)*xSeperator < 320)&&(y-ySeperator>0)){
+				switch(answer[1]){
+					case 'R':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator, Red[y][x]);
+						break;
+
+					case 'B':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator, Blue[y][x]);
+						break;
+
+					case 'O':
+						//plot_pixel(x+(round-1)*xSeperator, y+ySeperator, Orange[y][x]);
+						break;
+
+					case 'Y':
+						//plot_pixel(x+(round-1)*xSeperator, y+ySeperator, Yellow[y][x]);
+						break;
+
+					case 'P':
+						//plot_pixel(x+(round-1)*xSeperator, y+ySeperator, Purple[y][x]);
+						break;
+
+					case 'G':
+						//plot_pixel(x+(round-1)*xSeperator, y+ySeperator, Green[y][x]);
+						break;
+					
+					case 'E':
+						//plot_pixel(x+(round-1)*xSeperator, y+ySeperator, Empty[y][x]);
+						break;
+				}
+			}
+			
+			//Drawing the upper middle circle (circle gets shifted up twice & to the right by the round)
+			if((x+(round-1)*xSeperator < 320)&&(y-ySeperator*2>0)){
+				switch(answer[2]){
+					case 'R':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator*2, Red[y][x]);
+						break;
+
+					case 'B':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator*2, Blue[y][x]);
+						break;
+
+					case 'O':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator*2, Orange[y][x]);
+						break;
+
+					case 'Y':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator*2, Yellow[y][x]);
+						break;
+
+					case 'P':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator*2, Purple[y][x]);
+						break;
+
+					case 'G':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator*2, Green[y][x]);
+						break;
+					
+					case 'E':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator*2, Green[y][x]);
+						break;
+				}
+			}
+			
+			//Drawing the top circle
+			if((x+(round-1)*xSeperator < 320)&&(y-ySeperator*3>0)){
+				switch(answer[3]){
+					case 'R':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator*3, Red[y][x]);
+						break;
+
+					case 'B':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator*3, Blue[y][x]);
+						break;
+
+					case 'O':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator*3, Orange[y][x]);
+						break;
+
+					case 'Y':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator*3, Yellow[y][x]);
+						break;
+
+					case 'P':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator*3, Purple[y][x]);
+						break;
+
+					case 'G':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator*3, Green[y][x]);
+						break;
+
+					case 'E':
+						//plot_pixel(x+(round-1)*xSeperator, y-ySeperator*3, Green[y][x];
+						break;
+				}
+			}
+		
+		}
+	}
+	
 }
 
 char parse_input(int input){
