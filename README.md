@@ -1,5 +1,3 @@
-# ece243
+# ECE243: Final Project
 
-Hey this is a test if Ali can add something. Let's try our best and get a good grade!
-
-Testing if I can edit this. yaaaaaay
+This project uses C and the De1-SoC board to create the game Master Mind. If you'd like to play but don't have a physical board, visit https://cpulator.01xz.net/?sys=arm-de1soc. Download the file from the repo then open it in the simulated environment.
